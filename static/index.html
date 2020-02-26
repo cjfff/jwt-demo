@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .display-panel #panel {
+            width: 600px;
+        }
+
+        .form .label {
+            width: 80px;
+            display: inline-block;
+        }
+
+        .form .form-item {
+            display: block;
+        }
+
+        #login {
+            padding: 7px 18px;
+            outline: none;
+            border: 1px solid #eee;
+            background: #e08199;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #login:active {
+            filter:brightness(80%);
+        }
+        #login:hover{filter:brightness(120%);}
+    </style>
+</head>
+
+<body>
+    <div class="login-panel">
+        <form action="javascript:;" class="form" id="form">
+            <label for="username" class="form-item">
+                <span class="label">username</span>
+                <input type="text" value="admin" id="username">
+            </label>
+            <label for="password">
+                <span class="label">password</span>
+                <input type="password" value="abcd1234" id="password">
+            </label>
+        </form>
+        <button id="login">Login</button>
+    </div>
+    <div class="display-panel">
+        token: <input id="panel"></input>
+    </div>
+
+    <div class="decode-panel">
+        <button id="decode">decode</button>
+        info: <span id="info"></span>
+    </div>
+    <script>
+        const loginBtn = document.querySelector('#login')
+        const decodeBtn = document.querySelector('#decode')
+        const panel = document.querySelector('#panel')
+        const info = document.querySelector('#info')
+        const form = document.querySelector('#form')
+        const usernameInput = document.querySelector('#username')
+        const passwordInput = document.querySelector('#password')
+
+        loginBtn.addEventListener('click', (e) => {
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            fetch('/api/v1/user/login', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    password
+                })
+            }).then(res => res.json()).then(({ token }) => {
+                panel.value = token
+            })
+        })
+
+        decodeBtn.addEventListener('click', (e) => {
+            if (!panel.value) {
+                return alert('请先获取 token')
+            }
+            fetch('/api/v1/user/userinfo', {
+                headers: {
+                    Authorization: `Bearer ${panel.value}`
+                }
+            }).then(res => res.json()).then((res) => {
+                info.innerHTML = JSON.stringify(res)
+            })
+        })
+    </script>
+</body>
+
+</html>
